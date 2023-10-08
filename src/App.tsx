@@ -1,25 +1,44 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+/* eslint-disable array-callback-return */
+import { Box, Grid, ListItem, Typography } from '@mui/material';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+
+interface Prefecture {
+  prefCode: number;
+  prefName: string;
+}
 
 function App() {
+  const [prefec, setPrefec] = useState([]);
+
+  const headers = {
+    'Content-Type': 'application/json;charset=UTF-8',
+    'X-API-KEY': '6ih9bXRlXUGWPhPH0TWFTxgg95pqklyzFUnWtock',
+  };
+
+  useEffect(() => {
+    axios
+      .get('https://opendata.resas-portal.go.jp/api/v1/prefectures', {
+        headers: headers,
+      })
+      .then(response => {
+        setPrefec(response.data.result);
+      });
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <>
+    <div>
+      <Typography variant="h2">都道府県</Typography>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+        {prefec.map((data: Prefecture) => (
+          <span key={data.prefCode} style={{ minWidth: '120px' }}>
+            <input type='checkbox'/>{data.prefName}
+          </span>
+        ))}
+      </Box>
     </div>
+    </>
   );
 }
 
