@@ -4,12 +4,13 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 interface Prefecture {
+  isChecked: boolean | undefined;
   prefCode: number;
   prefName: string;
 }
 
 function App() {
-  const [prefec, setPrefec] = useState([]);
+  const [prefectures, setPrefectures] = useState<Prefecture[]>([]);
 
   const headers = {
     'Content-Type': 'application/json;charset=UTF-8',
@@ -22,18 +23,32 @@ function App() {
         headers: headers,
       })
       .then(response => {
-        setPrefec(response.data.result);
+        const formattedData = response.data.result.map((item: Prefecture) => ({
+          ...item,
+          isChecked: false,
+        }));
+        setPrefectures(formattedData);
       });
   }, []);
+
+  const handleToggleCheckbox = (prefCode: number) => {
+    setPrefectures(prevPrefectures =>
+      prevPrefectures.map(prefecture =>
+        prefecture.prefCode === prefCode ? { ...prefecture, isChecked: !prefecture.isChecked } : prefecture
+      )
+    );
+  };
+
+  console.log(prefectures)
 
   return (
     <>
     <div>
       <Typography variant="h2">都道府県</Typography>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-        {prefec.map((data: Prefecture) => (
-          <span key={data.prefCode} style={{ minWidth: '120px' }}>
-            <input type='checkbox'/>{data.prefName}
+        {prefectures.map((prefecture: Prefecture) => (
+          <span key={prefecture.prefCode} style={{ minWidth: '120px' }}>
+            <input type='checkbox' checked={prefecture.isChecked}  onChange={() => handleToggleCheckbox(prefecture.prefCode)} />{prefecture.prefName}
           </span>
         ))}
       </Box>
